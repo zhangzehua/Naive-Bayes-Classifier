@@ -4,12 +4,14 @@ import math
 import string
 import copy
 
+#computer confusion matrix using predict result and answer
 def computeConfusionMatrix(predicted, groundTruth, nAuthors):
     confusionMatrix = [[0 for i in range(nAuthors+1)] for j in range(nAuthors+1)]
     for i in range(len(groundTruth)):
         confusionMatrix[predicted[i]][groundTruth[i]] += 1
     return confusionMatrix
 
+#output the confusion matrix
 def outputConfusionMatrix(confusionMatrix):
     columnWidth = 4
     print(str(' ').center(columnWidth),end=' ')
@@ -22,6 +24,7 @@ def outputConfusionMatrix(confusionMatrix):
             print(str(confusionMatrix[j][i]).center(columnWidth),end=' ')
         print()
 
+#split the file in to list of single words
 def split(documentName, characters):
 	words = []
 	with open(documentName, encoding="iso-8859-15", errors='ignore') as inputFile:
@@ -30,7 +33,7 @@ def split(documentName, characters):
 				words.append(line[i:i+characters].lower())
 	return words
 
-
+#Read from the Train and Test set
 def read(inputPath, characters):
 	trainNameEnglish = inputPath+'train2000-English.en'
 	trainNameFrench = inputPath+'train2000-French.fr'
@@ -64,6 +67,8 @@ def read(inputPath, characters):
 	vocabulary = sorted(list(set(vocabulary)))
 	return trainSet,testSet,vocabulary
 
+#calculate the feature in vocabulary appear times in trainSet
+#and sort them in descending order
 def getFrequency(feature, document):
 	totalTimes = 0
 	for word in document:
@@ -71,6 +76,7 @@ def getFrequency(feature, document):
 			totalTimes += 1
 	return totalTimes
 
+#train the trainSet using the vocabulary
 def train(trainSet, vocabulary):
 	condProb = []
 	v_len = len(vocabulary)
@@ -88,6 +94,7 @@ def train(trainSet, vocabulary):
 	prior = [1/4, 1/4, 1/4, 1/4]
 	return condProb, prior
 
+#test the sampleSet using the result of train
 def test(testSet, condProb, prior, vocabulary):
 	result = []
 	for testLabel in range(len(testSet)):
@@ -100,6 +107,7 @@ def test(testSet, condProb, prior, vocabulary):
 		result.append(1+score.index(max(score)))
 	return result
 
+#calculate accuracy from the result and answer
 def get_accuracy(result, answer):
     total = 0
     rightAnswer = 0
@@ -109,6 +117,7 @@ def get_accuracy(result, answer):
         total += 1
     return rightAnswer/total
 
+#Read, Train, Test, Output
 def main():
 	answer = [1, 2, 3, 4]
 	trainSet,testSet,vocabulary = read(sys.argv[1],2)

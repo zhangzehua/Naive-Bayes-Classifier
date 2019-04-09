@@ -3,11 +3,13 @@ import os
 import re
 import math
 import matplotlib
+#To make sure it runs in the SSH
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import string
 import copy
 
+# Read from stopwords.txt and get the list of stopwords
 def populateStopWords():
     stopWords = []
     with open('stopwords.txt') as inputFile:
@@ -16,6 +18,7 @@ def populateStopWords():
                 stopWords.append(line.rstrip())
     return stopWords
 
+#split a whole line to single word in a list
 def tokenize(inputString):
     whitespaceStripped = re.sub("\s+", " ", inputString.strip())
     punctuationRemoved = "".join([x for x in whitespaceStripped
@@ -31,12 +34,14 @@ def splitFile(fileName):
             words.extend(tokenize(line))
     return words
 
+#computer confusion matrix using predict result and answer
 def computeConfusionMatrix(predicted, groundTruth, nAuthors):
     confusionMatrix = [[0 for i in range(nAuthors+1)] for j in range(nAuthors+1)]
     for i in range(len(groundTruth)):
         confusionMatrix[predicted[i]][groundTruth[i]] += 1
     return confusionMatrix
 
+#output the confusion matrix
 def outputConfusionMatrix(confusionMatrix):
     columnWidth = 4
     print(str(' ').center(columnWidth),end=' ')
@@ -122,6 +127,7 @@ def read(inputPath):
     inputPath = inputPath + problemSetCharacter
     fileNameListSample = []
     fileIndex = 1
+    #Read the sample set, which is test set.
     while (os.path.isfile(inputPath + 'sample' +str(fileIndex).zfill(2)+ '.txt')):
         fileNameListSample.append(inputPath + 'sample' +str(fileIndex).zfill(2)+ '.txt')
         fileIndex += 1
@@ -132,6 +138,7 @@ def read(inputPath):
     fileLabelIndex = 1
     fileTrainIndex = 1
     trainSet = [[]]
+    #Read the train set
     while True:
         tempStringOne = inputPath + 'train' + str(fileLabelIndex).zfill(2) + '-' + str(fileTrainIndex).zfill(1) + '.txt'
         tempStringTwo = inputPath + 'train' + str(fileLabelIndex).zfill(2) + '-' + str(fileTrainIndex).zfill(2) + '.txt'
@@ -159,7 +166,7 @@ def read(inputPath):
     del trainSet[-1]
     return trainSet, sampleSet, sampleAnswer
     
-#calculate CCE from the index of feature
+#calculate class-conditional entropy from the index of feature
 def getCCE(prior, condProb, index):
     CCE = 0
     for i in range(len(prior)):
@@ -187,6 +194,8 @@ def getFrequency(trainSet, vocabulary):
     featureFrequency.sort(key=lambda x: x[1], reverse=True)
     return featureFrequency
 
+
+#Read, Train, Test, Output
 def main():
     stopWords = populateStopWords()
     trainSet, sampleSet, answer = read(sys.argv[1])
